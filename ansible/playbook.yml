@@ -1,0 +1,37 @@
+---
+- name: Deploy LAMP App using Docker
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Update APT
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+
+    - name: Clone App Repo
+      git:
+        repo: 'https://github.com/ShafeeJakhro/lamp-deploy.git'
+        dest: /home/ubuntu/lamp-app
+        force: yes
+
+    - name: Run Docker Compose
+      shell: docker-compose up -d
+      args:
+        chdir: /home/ubuntu/lamp-app
+
